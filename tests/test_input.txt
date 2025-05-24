@@ -1,1 +1,2 @@
-ECHO is on.
+Graph: Bar chart: Sales 2020, USA: 500, China: 700, Japan: 300.
+Writing: The bar chart shows sales in 2020. USA had 500 units. China had 700 units.

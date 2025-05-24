@@ -1,1 +1,5 @@
-ECHO is on.
+__pycache__
+*.tokens
+*.class
+*.jar
+.antlr/
