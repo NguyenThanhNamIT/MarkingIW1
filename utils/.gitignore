@@ -1,0 +1,5 @@
+__pycache__
+*.tokens
+*.class
+*.jar
+chatbot.log

@@ -1,0 +1,5 @@
+Flask==2.3.3
+Flask-CORS==4.0.0
+Flask-Session==0.5.0
+antlr4-python3-runtime==4.9.2
+Werkzeug==2.3.7
