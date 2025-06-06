@@ -1,7 +1,7 @@
 from antlr4 import *
-from TenseQuizLexer import TenseQuizLexer
-from TenseQuizParser import TenseQuizParser
-from TenseQuizListener import TenseQuizListener
+from CompiledFiles.TenseQuizLexer import TenseQuizLexer
+from CompiledFiles.TenseQuizParser import TenseQuizParser
+from CompiledFiles.TenseQuizListener import TenseQuizListener
 import logging
 import json
 import random
@@ -161,7 +161,7 @@ class QuizChatbot:
 
     def handle_start(self, user_input):
         user_input = user_input.strip().lower()
-        if user_input == "start game":
+        if user_input == "start":
             self.select_questions()
             self.user_responses = []
             self.total_score = 0

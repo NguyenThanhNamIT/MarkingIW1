@@ -1,4 +1,4 @@
-from chatbot import QuizChatbot
+from Chat.chatbot import QuizChatbot
 
 def main():
     chatbot = QuizChatbot()
