@@ -1,0 +1,39 @@
+INFO:chatbot:User input: 
+INFO:chatbot:User input: start game
+INFO:chatbot:User input: 1
+INFO:chatbot:User input: went
+INFO:chatbot:User input: 
+INFO:chatbot:User input: start game
+INFO:chatbot:User input: 1
+INFO:chatbot:User input: went
+INFO:chatbot:User input: 
+INFO:chatbot:User input: start game
+INFO:chatbot:User input: 1
+INFO:chatbot:User input: went
+INFO:chatbot:User input: went, Detected tense: past, Expected tense: past
+INFO:chatbot:User: went, Correct: went, User tense: past, Correct tense: past, Response: \u0110úng
+INFO:chatbot:Response: \u0110úng
+
+Câu h\u1ecfi ti\u1ebfp theo:
+Choose the correct tense:
+1. They ___ (be) happy tomorrow.
+2. They ___ (be) happy now.
+INFO:chatbot:User input: 
+INFO:chatbot:User input: start game
+INFO:chatbot:User input: 1
+INFO:chatbot:User input: went
+INFO:chatbot:User input: went, Detected tense: past, Expected tense: past
+INFO:chatbot:User: went, Correct: went, User tense: past, Correct tense: past, Response: \u0110úng
+INFO:chatbot:Response: \u0110úng
+
+Câu h\u1ecfi ti\u1ebfp theo:
+Choose the correct tense:
+1. They ___ (be) happy tomorrow.
+2. They ___ (be) happy now.
+INFO:chatbot:User input: 2
+INFO:chatbot:User input: are
+INFO:chatbot:User input: are, Detected tense: present, Expected tense: present
+INFO:chatbot:User: are, Correct: are, User tense: present, Correct tense: present, Response: \u0110úng
+INFO:chatbot:Response: \u0110úng
+
+K\u1ebft thúc trò ch\u01a1i!
