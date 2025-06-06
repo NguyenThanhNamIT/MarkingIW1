@@ -193,22 +193,6 @@ To add new questions, edit the `all_questions` array in `utils/chat/chatbot.py`:
 }
 ```
 
-## Troubleshooting
-
-### Common Issues
-
-1. **Server won't start**: Check if Python and pip are installed correctly
-2. **Import errors**: Ensure all dependencies are installed with `pip install -r requirements.txt`
-3. **Client can't connect**: Verify the API server is running on port 8000
-4. **CORS errors**: The server includes CORS headers, but check browser console for details
-5. **ANTLR errors**: Ensure the CompiledFiles directory contains all generated Python files
-6. **Session issues**: Clear browser cache or restart the Flask server to reset sessions
-
-### Known Issues
-
-- **Two-verb questions**: Currently under investigation for state management issues
-- **Session persistence**: May require server restart after errors
-
 ## Technology Stack
 
 ### Frontend
