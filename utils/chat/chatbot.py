@@ -46,25 +46,25 @@ class QuizChatbot:
             # Choose Questions
             {
                 "type": "choose",
-                "prompt": "Choose the correct tense: She walks daily. 1) past 2) present 3) future 4) none",
+                "prompt": "Choose the correct tense: She walks daily.",
                 "correct_answers": ["2"],
                 "correct_tenses": ["present"]
             },
             {
                 "type": "choose",
-                "prompt": "Choose the correct tense: He will run tomorrow. 1) past 2) present 3) future 4) none",
+                "prompt": "Choose the correct tense: He will run tomorrow.",
                 "correct_answers": ["3"],
                 "correct_tenses": ["future"]
             },
             {
                 "type": "choose",
-                "prompt": "Choose the correct tense: They danced at the party. 1) past 2) present 3) future 4) none",
+                "prompt": "Choose the correct tense: They danced at the party.",
                 "correct_answers": ["1"],
                 "correct_tenses": ["past"]
             },
             {
                 "type": "choose",
-                "prompt": "Choose the correct tense: I am reading a book. 1) past 2) present 3) future 4) none",
+                "prompt": "Choose the correct tense: I am reading a book.",
                 "correct_answers": ["2"],
                 "correct_tenses": ["present"]
             },
@@ -140,8 +140,9 @@ class QuizChatbot:
           # Setup logging with a relative path
         log_file = os.path.join(os.path.dirname(os.path.abspath(__file__)), "chatbot.log")
         logging.basicConfig(filename=log_file, level=logging.INFO)
-          # Load config.json with relative path
-        config_file = os.path.join(os.path.dirname(os.path.abspath(__file__)), "config.json")
+        
+        # Load config.json with relative path
+        config_file = os.path.join(current_dir, "config.json")
         try:
             with open(config_file, "r") as f:
                 self.dialogue = json.load(f)
@@ -231,7 +232,7 @@ class QuizChatbot:
             incorrect_verbs = [f"'{user_verbs_combined[i]}' should be '{correct_answer[i]}'" for i in range(len(verb_checks)) if not verb_checks[i]]
             response = f"One or more verbs are incorrect: {', '.join(incorrect_verbs)}."
         else:
-            response = "Đúng"
+            response = "Correct"
 
         self.total_score += question_score
         response_entry = {
@@ -250,7 +251,7 @@ class QuizChatbot:
         if self.current_question < len(self.selected_questions):
             self.state = "select_option"
             question = self.selected_questions[self.current_question]
-            response += f"\n\nCâu hỏi tiếp theo:\n{self.instructions[question['type']]}\n\n{question['prompt']}"
+            # response += f"\n\nCâu hỏi tiếp theo:\n{self.instructions[question['type']]}\n\n{question['prompt']}"
         else:
             response += f"\n\nKết thúc trò chơi!\n\n--- Review of Your Answers ---\n"
             for idx, entry in enumerate(self.user_responses, 1):
@@ -304,8 +305,8 @@ class QuizChatbot:
             walker.walk(listener, parser.answer())
             user_tense = listener.get_tense()
 
-        if response == "":
-            response = "Đúng" if is_correct else "Sai"
+        # if response == "":
+        #     response = "Correct" if is_correct else "Incorrect"
 
         self.total_score += question_score
         response_entry = {
@@ -324,21 +325,20 @@ class QuizChatbot:
         if self.current_question < len(self.selected_questions):
             self.state = "select_option"
             question = self.selected_questions[self.current_question]
-            response += f"\n\nCâu hỏi tiếp theo:\n{self.instructions[question['type']]}\n\n{question['prompt']}"
         else:
-            response += f"\n\nKết thúc trò chơi!\n\n--- Review of Your Answers ---\n"
-            for idx, entry in enumerate(self.user_responses, 1):
-                correctness = "Correct" if entry["is_correct"] else "Incorrect"
-                if entry["question"].startswith("Complete"):
-                    verb_statuses = []
-                    user_verbs = entry["user_answer"].split(" and ")
-                    for i, check in enumerate(entry["verb_checks"]):
-                        verb_status = f"Verb {i+1}: {'Correct' if check else 'Incorrect'} (Your answer: '{user_verbs[i]}', Correct: '{entry['correct_answer'][i]}')"
-                        verb_statuses.append(verb_status)
-                    response += f"Question {idx}: {entry['question']}\nYour Answer: {entry['user_answer']}\nResult: {correctness}\nScore: {entry['score']}/1\nDetails: {'; '.join(verb_statuses)}\n\n"
-                else:
-                    response += f"Question {idx}: {entry['question']}\nYour Answer: {entry['user_answer']}\nResult: {correctness}\nScore: {entry['score']}/1\n\n"
-            response += f"Final Score: {self.total_score}/8"
+            # response += f"\n\nKết thúc trò chơi!\n\n--- Review of Your Answers ---\n"
+            # for idx, entry in enumerate(self.user_responses, 1):
+            #     correctness = "Correct" if entry["is_correct"] else "Incorrect"
+            #     if entry["question"].startswith("Complete"):
+            #         verb_statuses = []
+            #         user_verbs = entry["user_answer"].split(" and ")
+            #         for i, check in enumerate(entry["verb_checks"]):
+            #             verb_status = f"Verb {i+1}: {'Correct' if check else 'Incorrect'} (Your answer: '{user_verbs[i]}', Correct: '{entry['correct_answer'][i]}')"
+            #             verb_statuses.append(verb_status)
+            #         response += f"Question {idx}: {entry['question']}\nYour Answer: {entry['user_answer']}\nResult: {correctness}\nScore: {entry['score']}/1\nDetails: {'; '.join(verb_statuses)}\n\n"
+            #     else:
+            #         response += f"Question {idx}: {entry['question']}\nYour Answer: {entry['user_answer']}\nResult: {correctness}\nScore: {entry['score']}/1\n\n"
+            # response += f"Final Score: {self.total_score}/8"
             self.state = "start"
             self.current_question = 0
         self.logger.info(f"Response: {response}")

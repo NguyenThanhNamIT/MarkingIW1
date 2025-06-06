@@ -13,7 +13,7 @@ from utils.chat.chatbot import QuizChatbot
 app = Flask(__name__)
 
 # Configure Flask session
-app.config['SECRET_KEY'] = 'your-secret-key-here-change-in-production'
+app.config['SECRET_KEY'] = '123'
 app.config['SESSION_TYPE'] = 'filesystem'
 app.config['SESSION_FILE_DIR'] = 'flask_session'
 app.config['SESSION_PERMANENT'] = False
@@ -51,12 +51,23 @@ def start_game():
     chatbot = get_or_create_chatbot()
     response = chatbot.process_input("start")
     
+    current_question_data = None
+    if (chatbot.selected_questions and 
+        chatbot.current_question < len(chatbot.selected_questions)):
+        question = chatbot.selected_questions[chatbot.current_question]
+        current_question_data = {
+            "type": question["type"],
+            "prompt": question["prompt"],
+            "instruction": chatbot.instructions.get(question["type"], "")
+        }
+    
     return jsonify({
         "success": True,
         "message": response,
         "state": chatbot.state,
         "current_question": chatbot.current_question,
-        "total_questions": len(chatbot.selected_questions) if chatbot.selected_questions else 0
+        "total_questions": len(chatbot.selected_questions) if chatbot.selected_questions else 0,
+        "current_question_data": current_question_data
     })
 
 @app.route('/api/answer', methods=['POST'])
@@ -71,7 +82,28 @@ def submit_answer():
     chatbot = get_or_create_chatbot()
     
     try:
+        # If we're in select_option state, transition to the appropriate answer state first
+        if chatbot.state == "select_option":
+            question = chatbot.selected_questions[chatbot.current_question]
+            if question["type"] in ["blank", "correct"]:
+                chatbot.state = "answer"
+            elif question["type"] == "choose":
+                chatbot.state = "answer" 
+            elif question["type"] == "complete":
+                chatbot.state = "answer_first_verb"
+        
         response = chatbot.process_input(user_answer)
+        
+        # Get next question data if available
+        current_question_data = None
+        if (chatbot.selected_questions and 
+            chatbot.current_question < len(chatbot.selected_questions)):
+            question = chatbot.selected_questions[chatbot.current_question]
+            current_question_data = {
+                "type": question["type"],
+                "prompt": question["prompt"],
+                "instruction": chatbot.instructions.get(question["type"], "")
+            }
         
         return jsonify({
             "success": True,
@@ -79,7 +111,8 @@ def submit_answer():
             "state": chatbot.state,
             "current_question": chatbot.current_question,
             "total_questions": len(chatbot.selected_questions) if chatbot.selected_questions else 0,
-            "total_score": chatbot.total_score
+            "total_score": chatbot.total_score,
+            "current_question_data": current_question_data
         })
     except Exception as e:
         return jsonify({"success": False, "error": str(e)}), 500
@@ -110,8 +143,17 @@ def get_status():
 @app.route('/api/reset', methods=['POST'])
 def reset_game():
     """Reset the current game"""
+    # Clear the session-based chatbot instance
+    if 'session_id' in session:
+        session_id = session['session_id']
+        if session_id in chatbot_sessions:
+            del chatbot_sessions[session_id]
+    
+    # Clear the session completely to start fresh
+    session.clear()
+    
+    # Create a new chatbot instance
     chatbot = get_or_create_chatbot()
-    chatbot.__init__()  # Reinitialize the chatbot
     
     return jsonify({
         "success": True,
