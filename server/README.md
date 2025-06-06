@@ -2,20 +2,6 @@
 
 A Flask-based REST API for the Tense Quiz Chatbot application.
 
-## Setup
-
-1. Install dependencies:
-```bash
-python -m venv .venv
-.\.venv\Scripts\activate
-pip install -r requirements.txt
-```
-
-2. Run the server:
-```bash
-python app.py
-```
-
 The server will start on `http://localhost:8000`
 
 ## API Endpoints
@@ -75,21 +61,3 @@ The API uses Flask sessions to maintain separate game states for different clien
 - **choose**: Select correct tense (1-4)
 - **complete**: Enter two verbs separately
 - **correct**: Provide correct verb phrase or full sentence
-
-## Example Usage
-
-```javascript
-// Start game
-fetch('/api/start', {method: 'POST'})
-  .then(response => response.json())
-  .then(data => console.log(data.message));
-
-// Submit answer
-fetch('/api/answer', {
-  method: 'POST',
-  headers: {'Content-Type': 'application/json'},
-  body: JSON.stringify({answer: 'went'})
-})
-  .then(response => response.json())
-  .then(data => console.log(data.message));
-```

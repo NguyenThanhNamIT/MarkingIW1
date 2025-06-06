@@ -7,22 +7,37 @@ A complete English tense quiz application with a Python Flask backend API and a 
 ```
 QuizGameChatbot/
 ├── README.md                 # This file
-├── client/                   # Frontend web application
-│   ├── index.html           # Main web interface
-│   └── start_client.py      # Simple HTTP server for client
-├── server/                   # Backend API server
-│   ├── app.py              # Flask API application
-│   ├── requirements.txt    # Python dependencies
-│   ├── start_server.py     # Server startup script
-│   ├── test_client.py      # API testing script
-│   └── README.md           # Server documentation
-└── utils/                   # Core game logic and utilities
-    ├── Chat/
-    │   ├── chatbot.py      # Main game logic
-    │   ├── config.json     # Configuration
-    │   └── chatbot.log     # Game logs
-    ├── CompiledFiles/      # ANTLR generated files
-    └── TenseQuiz.g4        # ANTLR grammar file
+├── client/                   # Next.js frontend application
+│   ├── package.json         # Node.js dependencies
+│   ├── next.config.ts       # Next.js configuration
+│   ├── tsconfig.json        # TypeScript configuration
+│   ├── src/
+│   │   ├── app/
+│   │   │   ├── page.tsx     # Home page
+│   │   │   ├── quiz/
+│   │   │   │   └── page.tsx # Quiz interface
+│   │   │   └── results/
+│   │   │       └── page.tsx # Results page
+│   │   └── api/
+│   │       └── config.ts    # API configuration
+│   └── public/              # Static assets
+├── server/                   # Flask backend API server
+│   ├── app.py               # Flask API application
+│   ├── requirements.txt     # Python dependencies
+│   ├── README.md            # Server documentation
+│   └── flask_session/       # Session storage
+└── utils/                    # Core game logic and utilities
+    ├── main.py              # Main entry point
+    ├── run.py               # Grammar generator
+    ├── TenseQuiz.g4         # ANTLR grammar file
+    ├── chat/
+    │   ├── chatbot.py       # Main game logic
+    │   ├── config.json      # Configuration
+    │   └── chatbot.log      # Game logs
+    └── CompiledFiles/       # ANTLR generated files
+        ├── TenseQuizLexer.py
+        ├── TenseQuizParser.py
+        └── TenseQuizListener.py
 ```
 
 ## Features
@@ -34,13 +49,20 @@ QuizGameChatbot/
   - **Correct**: Fix grammatically incorrect sentences
 
 - **Modern Web Interface:**
-  - Responsive design
+  - Next.js with TypeScript
+  - Responsive design with Tailwind CSS
   - Real-time feedback
   - Progress tracking
   - Detailed results review
 
+- **Advanced Features:**
+  - ANTLR-based grammar parsing for tense analysis
+  - Session-based state management
+  - Comprehensive error handling
+  - Detailed logging and debugging
+
 - **RESTful API:**
-  - Session management
+  - Flask backend with session management
   - Comprehensive endpoints
   - Error handling
   - CORS support
@@ -50,14 +72,27 @@ QuizGameChatbot/
 ### Prerequisites
 
 - Python 3.7 or higher
-- pip (Python package installer)
+- Node.js and npm
 - A modern web browser
 
-### 1. Start the API Server
+### 1. Generate the ANTLR Grammar
+```powershell
+# Navigate to utils directory
+cd utils
+
+# Run the generator
+python run.py gen
+```
+
+### 2. Start the Server
 
 ```powershell
 # Navigate to server directory
 cd server
+
+# Create and activate virtual environment (optional but recommended)
+python -m venv .venv
+.\.venv\Scripts\Activate.ps1
 
 # Install dependencies
 pip install -r requirements.txt
@@ -68,7 +103,7 @@ python app.py
 
 The API server will start on `http://localhost:8000`
 
-### 2. Start the Web Client
+### 3. Start the Client
 
 Open a new PowerShell window:
 
@@ -76,30 +111,22 @@ Open a new PowerShell window:
 # Navigate to client directory
 cd client
 
-# Start the client server
+# Install Node.js dependencies
+npm install
 
+# Start the development server
+npm run dev
 ```
 
 The web interface will be available at `http://localhost:3000`
 
-### 3. Play the Game
+### 4. Play the Game
 
 1. Open your browser and go to `http://localhost:3000`
 2. Click "Start Quiz" to begin
 3. Follow the instructions for each question type
 4. Submit your answers and see immediate feedback
 5. Review your complete results at the end
-
-## Legacy Setup (Original CLI Version)
-
-1. Install Python 3.13.2, ensure PATH includes Scripts.
-2. Run: `python utils\run.py gen` to generate the ANTLR grammar.
-3. Run: `python utils\main.py` to start the original CLI game.
-
-### Legacy Usage
-- Nhập "start" để bắt đầu trò chơi.
-- Chọn 1 hoặc 2 để chọn câu hỏi phù hợp
-- Nếu đúng thì sẽ qua câu tiếp theo
 
 ## API Endpoints
 
@@ -138,20 +165,33 @@ Enter either the correct verb phrase or the full corrected sentence.
 
 ## Development
 
-### Testing the API
-
-Use the provided test client to verify API functionality:
-
-```powershell
-cd server
-python test_client.py
-```
-
 ### Configuration
 
-- Modify `utils/Chat/config.json` to change greeting messages
-- Edit question sets in `chatbot.py` to add new questions
+- Modify `utils/chat/config.json` to change greeting messages
+- Edit question sets in `utils/chat/chatbot.py` to add new questions
 - Adjust scoring logic in the chatbot class methods
+- Customize the ANTLR grammar in `utils/TenseQuiz.g4` for tense parsing
+
+### Architecture
+
+The application uses a clean separation between frontend and backend:
+
+- **Frontend (Next.js)**: Modern React-based interface with TypeScript
+- **Backend (Flask)**: RESTful API with session management
+- **Core Logic (utils)**: Game logic, ANTLR parsing, and chatbot implementation
+
+### Adding New Questions
+
+To add new questions, edit the `all_questions` array in `utils/chat/chatbot.py`:
+
+```python
+{
+    "type": "blank",  # or "choose", "complete", "correct"
+    "prompt": "Your question text with ___ (verb) placeholder",
+    "correct_answers": ["expected", "answers"],
+    "correct_tenses": ["past", "present", "future"]
+}
+```
 
 ## Troubleshooting
 
@@ -159,12 +199,46 @@ python test_client.py
 
 1. **Server won't start**: Check if Python and pip are installed correctly
 2. **Import errors**: Ensure all dependencies are installed with `pip install -r requirements.txt`
-3. **Client can't connect**: Verify the API server is running on port 5000
+3. **Client can't connect**: Verify the API server is running on port 8000
 4. **CORS errors**: The server includes CORS headers, but check browser console for details
+5. **ANTLR errors**: Ensure the CompiledFiles directory contains all generated Python files
+6. **Session issues**: Clear browser cache or restart the Flask server to reset sessions
 
-### Logs
+### Known Issues
 
-- Game activity is logged to `utils/Chat/chatbot.log`
-- Server logs appear in the console where you started `app.py`
+- **Two-verb questions**: Currently under investigation for state management issues
+- **Session persistence**: May require server restart after errors
 
+## Technology Stack
 
+### Frontend
+- **Next.js 14** - React framework with server-side rendering
+- **TypeScript** - Type-safe JavaScript
+- **Tailwind CSS** - Utility-first CSS framework
+- **React Hooks** - State management and effects
+
+### Backend
+- **Flask** - Python web framework
+- **Flask-Session** - Session management
+- **Flask-CORS** - Cross-origin resource sharing
+
+### Core Technologies
+- **ANTLR 4** - Grammar-based parsing for tense analysis
+- **Python 3.7+** - Backend runtime
+- **Node.js** - Frontend runtime
+
+## Contributing
+
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/new-feature`)
+3. Commit your changes (`git commit -am 'Add new feature'`)
+4. Push to the branch (`git push origin feature/new-feature`)
+5. Create a Pull Request
+
+## License
+
+This project is developed for educational purposes as part of the Principle of Programming Language (PPL) course.
+
+---
+
+*Last updated: June 2025*
