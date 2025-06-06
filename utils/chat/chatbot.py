@@ -1,10 +1,18 @@
 from antlr4 import *
-from CompiledFiles.TenseQuizLexer import TenseQuizLexer
-from CompiledFiles.TenseQuizParser import TenseQuizParser
-from CompiledFiles.TenseQuizListener import TenseQuizListener
+import sys
+import os
 import logging
 import json
 import random
+
+# Add the parent directory to sys.path to find CompiledFiles
+current_dir = os.path.dirname(os.path.abspath(__file__))
+parent_dir = os.path.dirname(current_dir)  # This goes to utils directory
+sys.path.append(parent_dir)
+
+from CompiledFiles.TenseQuizLexer import TenseQuizLexer
+from CompiledFiles.TenseQuizParser import TenseQuizParser
+from CompiledFiles.TenseQuizListener import TenseQuizListener
 
 class QuizChatbot:
     def __init__(self):
@@ -120,7 +128,7 @@ class QuizChatbot:
             "choose": "For Choose questions, select the correct tense by entering the number (1-4).\nExample: 'I sleep well. 1) past 2) present 3) future 4) none' → Enter: '2'",
             "complete": "For Complete questions, enter each verb separately as prompted.\nExample: 'They ___ (run) and ___ (jump) last week.' → First enter: 'ran', then enter: 'jumped'",
             "correct": "For Correct questions, enter the correct verb phrase or the full corrected sentence.\nExample: 'She run fast yesterday.' → Enter: 'ran' or 'She ran fast yesterday.'"
-        }
+        }        
         self.selected_questions = []
         self.user_responses = []
         self.current_question = 0
@@ -129,9 +137,19 @@ class QuizChatbot:
         self.first_verb_answer = None  # Store the first verb for complete questions
         self.total_score = 0
         self.logger = logging.getLogger(__name__)
-        logging.basicConfig(filename="chatbot.log", level=logging.INFO)
-        with open("config.json", "r") as f:
-            self.dialogue = json.load(f)
+          # Setup logging with a relative path
+        log_file = os.path.join(os.path.dirname(os.path.abspath(__file__)), "chatbot.log")
+        logging.basicConfig(filename=log_file, level=logging.INFO)
+          # Load config.json with relative path
+        config_file = os.path.join(os.path.dirname(os.path.abspath(__file__)), "config.json")
+        try:
+            with open(config_file, "r") as f:
+                self.dialogue = json.load(f)
+        except FileNotFoundError:
+            # Fallback default dialogue
+            self.dialogue = {
+                "greetings": ["Hello! I'm your Tense Quiz Chatbot. Type 'start' to begin!"]
+            }
 
     def select_questions(self):
         questions_by_type = {
