@@ -1,0 +1,98 @@
+{
+    "questions": [
+        {
+            "id": 1,
+            "type": "blank",
+            "prompt": "Fill in the blank: She ___ (go) to school yesterday."
+        },
+        {
+            "id": 2,
+            "type": "blank",
+            "prompt": "Fill in the blank: They ___ (be) happy now."
+        },
+        {
+            "id": 3,
+            "type": "blank",
+            "prompt": "Fill in the blank: He ___ (visit) his friend last weekend."
+        },
+        {
+            "id": 4,
+            "type": "blank",
+            "prompt": "Fill in the blank: We ___ (travel) to Japan next month."
+        },
+        {
+            "id": 5,
+            "type": "blank",
+            "prompt": "Fill in the blank: I ___ (eat) breakfast every morning."
+        },
+        {
+            "id": 6,
+            "type": "blank",
+            "prompt": "Fill in the blank: She ___ (write) a letter tomorrow."
+        },
+        {
+            "id": 7,
+            "type": "blank",
+            "prompt": "Complete the sentence: She ___ (study) every evening."
+        },
+        {
+            "id": 8,
+            "type": "blank",
+            "prompt": "Complete the sentence: They ___ (see) the movie next week."
+        },
+        {
+            "id": 9,
+            "type": "blank",
+            "prompt": "Complete the sentence: He ___ (write) in his notebook yesterday."
+        },
+        {
+            "id": 10,
+            "type": "blank",
+            "prompt": "Complete the sentence: We ___ (sing) at the event tomorrow."
+        },
+        {
+            "id": 11,
+            "type": "blank",
+            "prompt": "Complete the sentence: I ___ (run) every morning."
+        },
+        {
+            "id": 12,
+            "type": "blank",
+            "prompt": "Complete the sentence: She ___ (cook) dinner last night."
+        },
+        {
+            "id": 13,
+            "type": "correct",
+            "prompt": "Correct the sentence: She go to school yesterday."
+        },
+        {
+            "id": 14,
+            "type": "correct",
+            "prompt": "Correct the sentence: They is playing now."
+        },
+        {
+            "id": 15,
+            "type": "correct",
+            "prompt": "Correct the sentence: He write a letter last night."
+        },
+        {
+            "id": 16,
+            "type": "correct",
+            "prompt": "Correct the sentence: We will goes to the park tomorrow."
+        },
+        {
+            "id": 17,
+            "type": "correct",
+            "prompt": "Correct the sentence: I has a book."
+        },
+        {
+            "id": 18,
+            "type": "correct",
+            "prompt": "Correct the sentence: She will ate dinner later."
+        }
+    ],
+    "instructions": {
+        "blank": "For Blank questions, fill in the blank with the correct verb form based on the context.\nExample: 'He ___ (eat) an apple yesterday.' → Enter: 'ate'",
+        "correct": "For Correct questions, provide the grammatically correct version of the sentence and rewrite the whole sentence.\nExample: 'She run yesterday.' → Enter: 'She ran yesterday.'"
+    }
+}

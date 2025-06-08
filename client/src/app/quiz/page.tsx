@@ -5,17 +5,19 @@ import { useRouter } from "next/navigation";
 import { API_BASE_URL } from "@/api/config";
 
 interface Question {
+    id: string;
     type: string;
     prompt: string;
-    instruction: string;
 }
 
 interface QuizState {
-    state: string;
-    current_question: number;
+    success: boolean;
+    game_active: boolean;
+    game_id?: string;
+    score: number;
     total_questions: number;
-    total_score: number;
-    current_question_data: Question | null;
+    max_questions: number;
+    current_question: Question | null;
 }
 
 export default function QuizPage() {
@@ -25,13 +27,9 @@ export default function QuizPage() {
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [showFeedback, setShowFeedback] = useState(false);
     const [feedback, setFeedback] = useState("");
-    const [firstVerb, setFirstVerb] = useState("");
-    const [isAwaitingSecondVerb, setIsAwaitingSecondVerb] = useState(false);
-    const router = useRouter();
-
-    // Timer countdown
+    const router = useRouter();    // Timer countdown
     useEffect(() => {
-        if (timeLeft > 0 && !showFeedback && quizState?.state !== "start") {
+        if (timeLeft > 0 && !showFeedback && quizState?.game_active) {
             const timer = setTimeout(() => setTimeLeft(timeLeft - 1), 1000);
             return () => clearTimeout(timer);
         } else if (timeLeft === 0 && !showFeedback) {
@@ -42,72 +40,75 @@ export default function QuizPage() {
     // Fetch initial quiz status
     useEffect(() => {
         fetchQuizStatus();
-    }, []);
-
-    const fetchQuizStatus = async () => {
+    }, []); const fetchQuizStatus = async () => {
         try {
             const response = await fetch(`${API_BASE_URL}/status`, {
                 credentials: "include",
             });
             const data = await response.json();
-            setQuizState(data);
-            setTimeLeft(30);
+
+            if (data.success && data.game_active && data.current_question) {
+                setQuizState(data);
+                setTimeLeft(30);
+            } else {
+                // No active game, redirect to home
+                router.push("/");
+            }
         } catch (error) {
             console.error("Error fetching quiz status:", error);
+            router.push("/");
         }
     };
 
     const handleSubmitAnswer = async () => {
         if (isSubmitting) return;
 
-        setIsSubmitting(true); try {
-            let answerToSubmit = userAnswer;
+        setIsSubmitting(true);
 
-            // Handle complete questions that need two verbs
-            if (quizState?.current_question_data?.type === "complete" && isAwaitingSecondVerb) {
-                answerToSubmit = userAnswer; // This is the second verb
-            } else if (quizState?.current_question_data?.type === "complete" && !isAwaitingSecondVerb) {
-                // This is the first verb, send it to server and wait for prompt for second verb
-                answerToSubmit = userAnswer; // Send first verb to server
-                setFirstVerb(userAnswer); // Keep track locally for UI
-            }
-
+        try {
             const response = await fetch(`${API_BASE_URL}/answer`, {
                 method: "POST",
                 credentials: "include",
                 headers: {
                     "Content-Type": "application/json",
                 },
-                body: JSON.stringify({ answer: answerToSubmit }),
+                body: JSON.stringify({ answer: userAnswer }),
             });
 
             const data = await response.json(); if (data.success) {
-                // Check if this is a request for the second verb (complete questions)
-                if (data.message && data.message.includes("Enter the second verb")) {
-                    // This is the response to the first verb in a complete question
-                    setIsAwaitingSecondVerb(true);
-                    setUserAnswer("");
-                    setTimeLeft(30); // Reset timer for second verb
-                    setIsSubmitting(false);
-                    return; // Don't show feedback, just wait for second verb
-                }
-
-                setFeedback(data.message);
+                setFeedback(data.feedback || "Answer submitted");
                 setShowFeedback(true);
-                setQuizState(data);// Auto-advance after showing feedback
+
+                // Auto-advance after showing feedback
                 setTimeout(() => {
-                    if (data.state === "start") {
+                    if (data.game_complete) {
                         // Quiz completed, go to results
                         router.push("/results");
-                    } else {
-                        // Next question - data already contains next question info
+                    } else if (data.next_question) {
+                        // Update quiz state with next question
+                        setQuizState(prev => prev ? {
+                            ...prev,
+                            score: data.score,
+                            total_questions: data.total_questions,
+                            max_questions: data.max_questions || 10,
+                            current_question: data.next_question
+                        } : null);
                         setShowFeedback(false);
                         setUserAnswer("");
-                        setFirstVerb("");
-                        setIsAwaitingSecondVerb(false);
                         setTimeLeft(30);
-                        // No need to fetch status again, data already has next question
+                    } else {
+                        // Fallback: fetch status to get next question
+                        setShowFeedback(false);
+                        setUserAnswer("");
+                        setTimeLeft(30);
+                        fetchQuizStatus();
                     }
+                }, 2000);
+            } else {
+                setFeedback(data.error || "An error occurred");
+                setShowFeedback(true);
+                setTimeout(() => {
+                    setShowFeedback(false);
                 }, 2000);
             }
         } catch (error) {
@@ -121,18 +122,9 @@ export default function QuizPage() {
         if (e.key === "Enter" && !isSubmitting) {
             handleSubmitAnswer();
         }
-    };
-
-    const getProgressPercentage = () => {
-        if (!quizState) return 0;
-        return ((quizState.current_question + 1) / quizState.total_questions) * 100;
-    };
-
-    const getQuestionTypeColor = (type: string) => {
+    }; const getQuestionTypeColor = (type: string) => {
         switch (type) {
             case "blank": return "bg-blue-500";
-            case "choose": return "bg-green-500";
-            case "complete": return "bg-purple-500";
             case "correct": return "bg-orange-500";
             default: return "bg-gray-500";
         }
@@ -141,14 +133,10 @@ export default function QuizPage() {
     const getQuestionTypeIcon = (type: string) => {
         switch (type) {
             case "blank": return "✏️";
-            case "choose": return "🎯";
-            case "complete": return "🔗";
             case "correct": return "🔧";
             default: return "❓";
         }
-    };
-
-    if (!quizState || !quizState.current_question_data) {
+    }; if (!quizState || !quizState.current_question) {
         return (
             <div className="min-h-screen bg-gradient-to-br from-blue-600 to-purple-600 flex items-center justify-center">
                 <div className="text-white text-xl">Loading quiz...</div>
@@ -162,10 +150,10 @@ export default function QuizPage() {
                 <div className="max-w-2xl w-full text-center">
                     <div className="bg-white rounded-3xl shadow-2xl p-8">
                         <div className="text-6xl mb-4">
-                            {feedback.includes("Correct") ? "🎉" : "😞"}
+                            {feedback.includes("Correct") || feedback.includes("valid") ? "🎉" : "😞"}
                         </div>
                         <h2 className="text-3xl font-bold mb-4">
-                            {feedback.includes("Correct") ? "Correct!" : "Incorrect"}
+                            {feedback.includes("Correct") || feedback.includes("valid") ? "Correct!" : "Incorrect"}
                         </h2>
                         <p className="text-gray-600 text-lg mb-6">{feedback}</p>
                         <div className="text-sm text-gray-500">
@@ -175,101 +163,103 @@ export default function QuizPage() {
                 </div>
             </div>
         );
-    }
-
-    return (
+    } return (
         <div className="min-h-screen bg-gradient-to-br from-blue-600 to-purple-600 p-4">
-            {/* Header */}
+            {/* Header with Progress */}
             <div className="max-w-4xl mx-auto mb-6">
-                <div className="bg-white rounded-2xl shadow-lg p-4">
-                    <div className="flex items-center justify-between mb-4">
+                <div className="bg-white rounded-2xl shadow-lg p-6">
+                    {/* Question Progress Bar */}
+                    <div className="mb-4">
+                        <div className="flex justify-between items-center mb-2">
+                            <span className="text-sm font-semibold text-gray-700">Progress</span>
+                            <span className="text-sm font-semibold text-gray-700">
+                                {quizState.total_questions + 1} / {quizState.max_questions}
+                            </span>
+                        </div>
+                        <div className="w-full bg-gray-200 rounded-full h-3">
+                            <div
+                                className="bg-gradient-to-r from-green-500 to-blue-500 h-3 rounded-full transition-all duration-500 ease-out"
+                                style={{
+                                    width: `${((quizState.total_questions + 1) / quizState.max_questions) * 100}%`
+                                }}
+                            ></div>
+                        </div>
+                    </div>
+
+                    {/* Timer Progress Bar */}
+                    <div className="mb-4">
+                        <div className="flex justify-between items-center mb-2">
+                            <span className="text-sm font-semibold text-gray-700">Time Remaining</span>
+                            <span className="text-sm font-semibold text-purple-600">{timeLeft}s</span>
+                        </div>
+                        <div className="w-full bg-gray-200 rounded-full h-2">
+                            <div
+                                className={`h-2 rounded-full transition-all duration-1000 ease-linear ${timeLeft > 15 ? 'bg-green-500' :
+                                        timeLeft > 5 ? 'bg-yellow-500' : 'bg-red-500'
+                                    }`}
+                                style={{
+                                    width: `${(timeLeft / 30) * 100}%`
+                                }}
+                            ></div>
+                        </div>
+                    </div>
+
+                    <div className="flex items-center justify-between">
                         <div className="flex items-center gap-4">
-                            <div className={`w-12 h-12 ${getQuestionTypeColor(quizState.current_question_data.type)} rounded-xl flex items-center justify-center text-white text-xl`}>
-                                {getQuestionTypeIcon(quizState.current_question_data.type)}
+                            <div className={`w-12 h-12 ${getQuestionTypeColor(quizState.current_question.type)} rounded-xl flex items-center justify-center text-white text-xl`}>
+                                {getQuestionTypeIcon(quizState.current_question.type)}
                             </div>
                             <div>
-                                <h1 className="text-xl font-bold">Question {quizState.current_question + 1}</h1>
-                                <p className="text-gray-600 capitalize">{quizState.current_question_data.type} Question</p>
+                                <h1 className="text-xl font-bold">Question {quizState.total_questions + 1}</h1>
+                                <p className="text-gray-600 capitalize">{quizState.current_question.type} Question</p>
                             </div>
                         </div>
                         <div className="text-right">
-                            <div className="text-2xl font-bold text-purple-600">{timeLeft}s</div>
-                            <div className="text-sm text-gray-600">Time Left</div>
+                            <div className="text-2xl font-bold text-purple-600">{quizState.score}</div>
+                            <div className="text-sm text-gray-600">Score</div>
                         </div>
-                    </div>
-
-                    {/* Progress Bar */}
-                    <div className="w-full bg-gray-200 rounded-full h-3">
-                        <div
-                            className="bg-gradient-to-r from-purple-500 to-pink-500 h-3 rounded-full transition-all duration-300"
-                            style={{ width: `${getProgressPercentage()}%` }}
-                        ></div>
-                    </div>
-                    <div className="text-sm text-gray-600 mt-2">
-                        {quizState.current_question + 1} of {quizState.total_questions} questions
                     </div>
                 </div>
             </div>
 
             {/* Question Card */}
             <div className="max-w-4xl mx-auto">
-                <div className="bg-white rounded-3xl shadow-2xl p-8">
-                    {/* Instructions */}
+                <div className="bg-white rounded-3xl shadow-2xl p-8">                    {/* Instructions */}
                     <div className="bg-blue-50 rounded-xl p-4 mb-6">
                         <h3 className="font-semibold text-blue-800 mb-2">Instructions:</h3>
-                        <p className="text-blue-700">{quizState.current_question_data.instruction}</p>
+                        <p className="text-blue-700">
+                            {quizState.current_question.type === "blank"
+                                ? "Fill in the blank with the correct VERB form."
+                                : "Correct the grammar in the sentence provided and REWRITE THE WHOLE SENTENCE."
+                            }
+                        </p>
                     </div>
 
                     {/* Question */}
                     <div className="mb-8">
                         <h2 className="text-2xl font-bold text-gray-800 mb-4">
-                            {isAwaitingSecondVerb ? `Complete the second verb:` : quizState.current_question_data.prompt}
+                            {quizState.current_question.prompt}
                         </h2>
-
-                        {isAwaitingSecondVerb && (
-                            <div className="bg-green-50 rounded-xl p-4 mb-4">
-                                <p className="text-green-800">
-                                    First verb entered: <span className="font-bold">{firstVerb}</span>
-                                </p>
-                            </div>
-                        )}
                     </div>
 
-                    {/* Answer Input */}
+                    {/* Answer Input - Only text input since we only have blank and correct types */}
                     <div className="mb-8">
-                        {quizState.current_question_data.type === "choose" ? (
-                            <div className="grid grid-cols-1 gap-3">
-                                {["Past", "Present", "Future", "None of the above"].map((option, index) => (
-                                    <button
-                                        key={index}
-                                        onClick={() => setUserAnswer((index + 1).toString())}
-                                        className={`p-4 rounded-xl border-2 text-left transition-all duration-200 ${userAnswer === (index + 1).toString()
-                                            ? "border-purple-500 bg-purple-50 text-gray-800"
-                                            : "border-gray-200 hover:border-gray-300 text-gray-800"
-                                            }`}
-                                    >
-                                        <span className="font-bold text-purple-600">{index + 1})</span> {option}
-                                    </button>
-                                ))}
-                            </div>
-                        ) : (
-                            <input
-                                type="text"
-                                value={userAnswer}
-                                onChange={(e) => setUserAnswer(e.target.value)}
-                                onKeyPress={handleKeyPress}
-                                className="w-full p-4 text-xl border-2 border-gray-300 rounded-xl focus:border-purple-500 focus:outline-none text-gray-800"
-                                placeholder="Type your answer here..."
-                                disabled={isSubmitting}
-                            />
-                        )}
+                        <input
+                            type="text"
+                            value={userAnswer}
+                            onChange={(e) => setUserAnswer(e.target.value)}
+                            onKeyPress={handleKeyPress}
+                            className="w-full p-4 text-xl border-2 border-gray-300 rounded-xl focus:border-purple-500 focus:outline-none text-gray-800"
+                            placeholder="Type your answer here..."
+                            disabled={isSubmitting}
+                        />
                     </div>
 
                     {/* Submit Button */}
                     <div className="text-center">
                         <button
                             onClick={handleSubmitAnswer}
-                            disabled={isSubmitting || !userAnswer}
+                            disabled={isSubmitting || !userAnswer.trim()}
                             className="bg-gradient-to-r from-purple-600 to-pink-600 text-white text-xl font-bold py-4 px-12 rounded-2xl hover:from-purple-700 hover:to-pink-700 transform hover:scale-105 transition-all duration-300 shadow-lg disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
                         >
                             {isSubmitting ? (
@@ -278,18 +268,22 @@ export default function QuizPage() {
                                     Submitting...
                                 </div>
                             ) : (
-                                isAwaitingSecondVerb ? "Submit Second Verb" : "Submit Answer"
+                                "Submit Answer"
                             )}
                         </button>
                     </div>
                 </div>
-            </div>
-
-            {/* Score Display */}
+            </div>            {/* Score Display */}
             <div className="max-w-4xl mx-auto mt-6">
                 <div className="bg-white/20 backdrop-blur-sm rounded-2xl p-4 text-center">
                     <div className="text-white text-lg">
-                        Current Score: <span className="font-bold">{quizState.total_score}</span> / 8
+                        Current Score: <span className="font-bold">{quizState.score}</span> / {quizState.total_questions}
+                        <span className="text-sm opacity-75 ml-2">
+                            ({quizState.total_questions > 0 ? Math.round((quizState.score / quizState.total_questions) * 100) : 0}%)
+                        </span>
+                    </div>
+                    <div className="text-white/70 text-sm mt-1">
+                        Questions Remaining: {quizState.max_questions - (quizState.total_questions + 1)}
                     </div>
                 </div>
             </div>
