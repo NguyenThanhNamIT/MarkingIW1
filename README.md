@@ -164,14 +164,10 @@ To add new questions, edit the question data files in the server directory or mo
 
 ### Frontend
 - **Next.js 14** - React framework with server-side rendering
-- **TypeScript** - Type-safe JavaScript
 - **Tailwind CSS** - Utility-first CSS framework
-- **React Hooks** - State management and effects
 
 ### Backend
 - **Flask** - Python web framework
-- **Flask-Session** - Session management
-- **Flask-CORS** - Cross-origin resource sharing
 
 ### Core Technologies
 - **ANTLR 4** - Grammar-based parsing for tense analysis
