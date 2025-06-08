@@ -6,8 +6,8 @@ Provides simple functions to validate English grammar using ANTLR
 import os
 from antlr4 import *
 from antlr4.error.ErrorListener import ErrorListener
-from CompiledFiles.TenseQuizLexer import TenseQuizLexer
-from CompiledFiles.TenseQuizParser import TenseQuizParser
+from .CompiledFiles.TenseQuizLexer import TenseQuizLexer
+from .CompiledFiles.TenseQuizParser import TenseQuizParser
 
 
 class GrammarErrorListener(ErrorListener):

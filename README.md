@@ -24,29 +24,18 @@ QuizGameChatbot/
 ├── server/                   # Flask backend API server
 │   ├── app.py               # Flask API application
 │   ├── requirements.txt     # Python dependencies
-│   ├── README.md            # Server documentation
-│   └── flask_session/       # Session storage
 └── utils/                    # Core game logic and utilities
-    ├── main.py              # Main entry point
-    ├── run.py               # Grammar generator
+    ├── run.py               # ANTLR generator and grammar tester
+    ├── grammar_validator.py # Grammar validation module
     ├── TenseQuiz.g4         # ANTLR grammar file
-    ├── chat/
-    │   ├── chatbot.py       # Main game logic
-    │   ├── config.json      # Configuration
-    │   └── chatbot.log      # Game logs
     └── CompiledFiles/       # ANTLR generated files
-        ├── TenseQuizLexer.py
-        ├── TenseQuizParser.py
-        └── TenseQuizListener.py
 ```
 
 ## Features
 
 - **Multiple Question Types:**
   - **Blank**: Fill in the blank with correct verb forms
-  - **Choose**: Select the correct tense from multiple choices
-  - **Complete**: Enter two verbs for compound sentences
-  - **Correct**: Fix grammatically incorrect sentences
+  - **Correct**: Fix grammatically incorrect sentences and rewrite the sentence
 
 - **Modern Web Interface:**
   - Next.js with TypeScript
@@ -54,12 +43,6 @@ QuizGameChatbot/
   - Real-time feedback
   - Progress tracking
   - Detailed results review
-
-- **Advanced Features:**
-  - ANTLR-based grammar parsing for tense analysis
-  - Session-based state management
-  - Comprehensive error handling
-  - Detailed logging and debugging
 
 - **RESTful API:**
   - Flask backend with session management
@@ -77,12 +60,18 @@ QuizGameChatbot/
 
 ### 1. Generate the ANTLR Grammar
 ```powershell
-# Navigate to utils directory
 cd utils
-
-# Run the generator
+# Generate ANTLR parser files from grammar
 python run.py gen
+
+# Run comprehensive grammar tests
+python run.py test
+
+# Validate a specific sentence
+python run.py validate "Your sentence here"
 ```
+
+**Note:** Before running the generator, ensure you have ANTLR 4 installed and update the `ANTLR_JAR` path in `utils/run.py` to match your ANTLR installation location.
 
 ### 2. Start the Server
 
@@ -92,7 +81,7 @@ cd server
 
 # Create and activate virtual environment (optional but recommended)
 python -m venv .venv
-.\.venv\Scripts\Activate.ps1
+.\.venv\Scripts\Activate
 
 # Install dependencies
 pip install -r requirements.txt
@@ -147,30 +136,10 @@ Fill in the blank with the correct verb form.
 - **Example**: "She ___ (go) to school yesterday."
 - **Answer**: "went"
 
-### 2. Choose Questions
-Select the correct tense by entering 1, 2, 3, or 4.
-- **Example**: "She walks daily. 1) past 2) present 3) future 4) none"
-- **Answer**: "2"
-
-### 3. Complete Questions
-Enter each verb separately when prompted.
-- **Example**: "They ___ (run) and ___ (jump) last week."
-- **First Answer**: "ran"
-- **Second Answer**: "jumped"
-
-### 4. Correct Questions
+### 2. Correct Questions
 Enter either the correct verb phrase or the full corrected sentence.
 - **Example**: "She go to school yesterday."
-- **Answer**: "went" or "She went to school yesterday."
-
-## Development
-
-### Configuration
-
-- Modify `utils/chat/config.json` to change greeting messages
-- Edit question sets in `utils/chat/chatbot.py` to add new questions
-- Adjust scoring logic in the chatbot class methods
-- Customize the ANTLR grammar in `utils/TenseQuiz.g4` for tense parsing
+- **Answer**: "She went to school yesterday."
 
 ### Architecture
 
@@ -178,36 +147,40 @@ The application uses a clean separation between frontend and backend:
 
 - **Frontend (Next.js)**: Modern React-based interface with TypeScript
 - **Backend (Flask)**: RESTful API with session management
-- **Core Logic (utils)**: Game logic, ANTLR parsing, and chatbot implementation
+- **Core Logic (utils)**: ANTLR-based grammar parsing, validation utilities, and tense analysis
 
 ### Adding New Questions
 
-To add new questions, edit the `all_questions` array in `utils/chat/chatbot.py`:
+To add new questions, edit the question data files in the server directory or modify the quiz logic:
 
 ```python
 {
-    "type": "blank",  # or "choose", "complete", "correct"
+    "type": "blank",  # or "correct"
     "prompt": "Your question text with ___ (verb) placeholder",
-    "correct_answers": ["expected", "answers"],
-    "correct_tenses": ["past", "present", "future"]
 }
 ```
 
-## Troubleshooting
+### Adding New Grammar Rules
 
-### Common Issues
+To extend the grammar parser:
 
-1. **Server won't start**: Check if Python and pip are installed correctly
-2. **Import errors**: Ensure all dependencies are installed with `pip install -r requirements.txt`
-3. **Client can't connect**: Verify the API server is running on port 8000
-4. **CORS errors**: The server includes CORS headers, but check browser console for details
-5. **ANTLR errors**: Ensure the CompiledFiles directory contains all generated Python files
-6. **Session issues**: Clear browser cache or restart the Flask server to reset sessions
+1. **Edit Grammar File:**
+   ```powershell
+   # Edit utils/TenseQuiz.g4
+   # Add new grammar rules, vocabulary, or patterns
+   ```
 
-### Known Issues
+2. **Regenerate Parser:**
+   ```powershell
+   cd utils
+   python run.py gen
+   ```
 
-- **Two-verb questions**: Currently under investigation for state management issues
-- **Session persistence**: May require server restart after errors
+3. **Test Changes:**
+   ```powershell
+   python run.py test
+   python run.py validate "your test sentence"
+   ```
 
 ## Technology Stack
 
@@ -226,14 +199,6 @@ To add new questions, edit the `all_questions` array in `utils/chat/chatbot.py`:
 - **ANTLR 4** - Grammar-based parsing for tense analysis
 - **Python 3.7+** - Backend runtime
 - **Node.js** - Frontend runtime
-
-## Contributing
-
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/new-feature`)
-3. Commit your changes (`git commit -am 'Add new feature'`)
-4. Push to the branch (`git push origin feature/new-feature`)
-5. Create a Pull Request
 
 ## License
 

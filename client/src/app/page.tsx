@@ -60,7 +60,7 @@ export default function Home() {
               English Grammar Challenge
             </h2>
             <p className="text-gray-600 text-lg leading-relaxed">
-              Test your knowledge of English tenses with 8 interactive questions.
+              Test your knowledge of English tenses with 10 interactive questions.
               Fill in blanks, choose correct answers, complete sentences, and fix grammar mistakes!
             </p>
           </div>
@@ -74,7 +74,7 @@ export default function Home() {
             </div>
             <div className="bg-green-50 rounded-xl p-4">
               <div className="text-2xl mb-2">🎯</div>
-              <div className="font-semibold text-green-800">8 Questions</div>
+              <div className="font-semibold text-green-800">10 Questions</div>
               <div className="text-sm text-green-600">Mixed question types</div>
             </div>
             <div className="bg-yellow-50 rounded-xl p-4">
