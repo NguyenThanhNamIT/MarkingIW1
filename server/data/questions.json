@@ -1,0 +1,142 @@
+{
+    "questions": [
+        {
+            "id": 1,
+            "type": "blank",
+            "prompt": "Fill in the blank: She ___ (go) to school yesterday.",
+            "context_tense": "past",
+            "difficulty": "easy"
+        },
+        {
+            "id": 2,
+            "type": "blank",
+            "prompt": "Fill in the blank: They ___ (be) happy now.",
+            "context_tense": "present",
+            "difficulty": "easy"
+        },
+        {
+            "id": 3,
+            "type": "blank",
+            "prompt": "Fill in the blank: He ___ (visit) his friend last weekend.",
+            "context_tense": "past",
+            "difficulty": "medium"
+        },
+        {
+            "id": 4,
+            "type": "blank",
+            "prompt": "Fill in the blank: We ___ (travel) to Japan next month.",
+            "context_tense": "future",
+            "difficulty": "medium"
+        },
+        {
+            "id": 5,
+            "type": "blank",
+            "prompt": "Fill in the blank: I ___ (eat) breakfast every morning.",
+            "context_tense": "present",
+            "difficulty": "easy"
+        },
+        {
+            "id": 6,
+            "type": "blank",
+            "prompt": "Fill in the blank: She ___ (write) a letter tomorrow.",
+            "context_tense": "future",
+            "difficulty": "medium"
+        },
+        {
+            "id": 7,
+            "type": "blank",
+            "prompt": "Complete the sentence: She ___ (study) and ___ (play) every evening.",
+            "context_tense": "present",
+            "difficulty": "medium"
+        },
+        {
+            "id": 8,
+            "type": "blank",
+            "prompt": "Complete the sentence: They ___ (go) and ___ (see) the movie next week.",
+            "context_tense": "future",
+            "difficulty": "medium"
+        },
+        {
+            "id": 9,
+            "type": "blank",
+            "prompt": "Complete the sentence: He ___ (write) and ___ (draw) in his notebook yesterday.",
+            "context_tense": "past",
+            "difficulty": "hard"
+        },
+        {
+            "id": 10,
+            "type": "blank",
+            "prompt": "Complete the sentence: We ___ (sing) and ___ (dance) at the event tomorrow.",
+            "context_tense": "future",
+            "difficulty": "medium"
+        },
+        {
+            "id": 11,
+            "type": "blank",
+            "prompt": "Complete the sentence: I ___ (run) and ___ (jump) every morning.",
+            "context_tense": "present",
+            "difficulty": "medium"
+        },
+        {
+            "id": 12,
+            "type": "blank",
+            "prompt": "Complete the sentence: She ___ (cook) and ___ (eat) dinner last night.",
+            "context_tense": "past",
+            "difficulty": "hard"
+        },
+        {
+            "id": 13,
+            "type": "correct",
+            "prompt": "Correct the sentence: She go to school yesterday.",
+            "incorrect_sentence": "She go to school yesterday.",
+            "context_tense": "past",
+            "difficulty": "medium"
+        },
+        {
+            "id": 14,
+            "type": "correct",
+            "prompt": "Correct the sentence: They is playing now.",
+            "incorrect_sentence": "They is playing now.",
+            "context_tense": "present",
+            "difficulty": "medium"
+        },
+        {
+            "id": 15,
+            "type": "correct",
+            "prompt": "Correct the sentence: He write a letter last night.",
+            "incorrect_sentence": "He write a letter last night.",
+            "context_tense": "past",
+            "difficulty": "medium"
+        },
+        {
+            "id": 16,
+            "type": "correct",
+            "prompt": "Correct the sentence: We will goes to the park tomorrow.",
+            "incorrect_sentence": "We will goes to the park tomorrow.",
+            "context_tense": "future",
+            "difficulty": "hard"
+        },
+        {
+            "id": 17,
+            "type": "correct",
+            "prompt": "Correct the sentence: I has a book.",
+            "incorrect_sentence": "I has a book.",
+            "context_tense": "present",
+            "difficulty": "easy"
+        },
+        {
+            "id": 18,
+            "type": "correct",
+            "prompt": "Correct the sentence: She will ate dinner later.",
+            "incorrect_sentence": "She will ate dinner later.",
+            "context_tense": "future",
+            "difficulty": "hard"
+        }
+    ],
+    "instructions": {
+        "blank": "For Blank questions, fill in the blank with the correct verb form based on the context.\nExample: 'He ___ (eat) an apple yesterday.' → Enter: 'ate'",
+        "correct": "For Correct questions, provide the grammatically correct version of the sentence and rewrite the whole sentence.\nExample: 'She run fast yesterday.' → Enter: 'She ran fast yesterday.'"
+    },
+    "validation_method": "grammar_based",
+    "description": "Questions designed for grammar-based validation without requiring stored correct answers. The system analyzes grammatical correctness and tense consistency using ANTLR parsing."
+}
