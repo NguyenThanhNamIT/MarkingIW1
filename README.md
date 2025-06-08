@@ -160,28 +160,6 @@ To add new questions, edit the question data files in the server directory or mo
 }
 ```
 
-### Adding New Grammar Rules
-
-To extend the grammar parser:
-
-1. **Edit Grammar File:**
-   ```powershell
-   # Edit utils/TenseQuiz.g4
-   # Add new grammar rules, vocabulary, or patterns
-   ```
-
-2. **Regenerate Parser:**
-   ```powershell
-   cd utils
-   python run.py gen
-   ```
-
-3. **Test Changes:**
-   ```powershell
-   python run.py test
-   python run.py validate "your test sentence"
-   ```
-
 ## Technology Stack
 
 ### Frontend
